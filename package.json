@@ -1,0 +1,25 @@
+{
+  "name": "megaminx",
+  "version": "0.1.0",
+  "description": "A typeface manipulation toolkit",
+  "main": "index.js",
+  "author": "belleve@typeof.net",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caryll/Megaminx.git"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/caryll/Megaminx/issues"
+  },
+  "homepage": "https://github.com/caryll/Megaminx#readme",
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "fs-extra": "^3.0.1",
+    "otfcc-c2q": "^0.6.4",
+    "which": "^1.2.14"
+  }
+}

@@ -25,7 +25,7 @@ module.exports = async function(ctx, target) {
 		mark(lut, font.cmap);
 		mark(lut, font.cmap_uvs);
 		mark(lut, font.GSUB);
-		mark(lut, font.GPOS);
+		// mark(lut, font.GPOS);
 		if (font.glyph_order) {
 			mark(lut, font.glyph_order[0]);
 		}

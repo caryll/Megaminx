@@ -25,13 +25,21 @@ exports.subset = async function(ctx, target, f) {
 		cmap[k] = gid;
 		glyf[gid] = font.glyf[gid];
 	}
-	glyf[".notdef"] = {
-		advanceWidth: 0,
-		contours: []
-	};
+
+	const gid0 = font.glyph_order[0];
+	if (!glyf[gid0]) {
+		if (font.glyf[gid0]) {
+			glyf[gid0] = font.glyf[gid0];
+		} else {
+			glyf[gid0] = {
+				advanceWidth: 0,
+				contours: []
+			};
+		}
+	}
 	font.glyf = glyf;
 	font.cmap = cmap;
-	font.glyph_order = [".notdef"];
+	font.glyph_order = [gid0];
 };
 
 exports.accept = x => true;

@@ -18,9 +18,10 @@ function getStream(sourcefile, options) {
 			"--no-bom",
 			"--decimal-cmap"
 		]);
+		cp.stdout.setEncoding("utf8");
 		return cp.stdout;
 	} else {
-		return fs.createReadStream(sourcefile);
+		return fs.createReadStream(sourcefile, { encoding: "utf8" });
 	}
 }
 

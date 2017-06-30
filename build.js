@@ -4,6 +4,7 @@ const child_process = require("child_process");
 const stringifyToStream = require("./support/stringifyToStream");
 const which = require("which");
 const fs = require("fs-extra");
+const path = require("path");
 
 function cppm(cp) {
 	return new Promise(function(resolve, reject) {
@@ -57,21 +58,27 @@ async function Build(ctx, demand, destination, options) {
 	}
 	sanityFeatures(font.GSUB);
 	sanityFeatures(font.GPOS);
-	await fs.ensureFile(destination);
-	let cp = child_process.spawn(which.sync("otfccbuild"), [
-		...["-o", destination],
-		...(options.optimize ? ["-O3"] : []),
-		...(options.sign ? ["-s"] : []),
-		"-s",
-		"--keep-average-char-width"
-	]);
-	stringifyToStream(font, cp.stdin);
-	cp.stderr.on("data", function(data) {
-		if (options.verbose) {
-			process.stderr.write(data);
-		}
-	});
-	await cppm(cp);
+	const ext = path.parse(destination).ext;
+	if (ext === ".ttf" || ext === ".otf") {
+		await fs.ensureFile(destination);
+		let cp = child_process.spawn(which.sync("otfccbuild"), [
+			...["-o", destination],
+			...(options.optimize ? ["-O3"] : []),
+			...(options.sign ? ["-s"] : []),
+			"-s",
+			"--keep-average-char-width"
+		]);
+		stringifyToStream(font, cp.stdin);
+		cp.stderr.on("data", function(data) {
+			if (options.verbose) {
+				process.stderr.write(data);
+			}
+		});
+		await cppm(cp);
+	} else {
+		const out = fs.createWriteStream(destination);
+		await stringifyToStream(font, out);
+	}
 }
 
 module.exports = Build;

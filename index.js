@@ -17,5 +17,6 @@ module.exports = {
 		Point: require("./geometry/point"),
 		GlyphPoint: require("./geometry/glyph-point"),
 		Transform: require("./geometry/transform")
-	}
+	},
+	contourHash: require("./support/contourhash")
 };

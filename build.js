@@ -23,13 +23,14 @@ function sanityFeatures(table) {
 	const allfeats = {};
 	for (let lid in table.languages) {
 		const lang = table.languages[lid];
-		if (lang.requiredFeature) {
+		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
 			allfeats[lang.requiredFeature + "#RF#" + lid] = table.features[lang.requiredFeature];
 			lang.requiredFeature = lang.requiredFeature + "#RF#" + lid;
 		}
 		let tagmap = {};
 		if (!lang.features) lang.features = [];
 		for (let f of lang.features) {
+			if (!table.features[f]) continue;
 			const tag = f.slice(0, 4);
 			if (!tagmap[tag]) tagmap[tag] = [];
 			tagmap[tag] = [...tagmap[tag], ...table.features[f]];

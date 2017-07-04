@@ -2,6 +2,8 @@
 
 // Garbage collection
 
+const { kvfilter, vmap, kvmap } = require("./support/kvfns");
+
 function mark(lut, obj) {
 	if (!obj) return;
 	if (typeof obj === "string") {
@@ -49,5 +51,11 @@ module.exports = async function(ctx, target) {
 		console.log("  Megaminx Glyph GC :", na, "->", nk);
 		font.glyf = g1;
 		if (nk >= na) break;
+	}
+	if (font.TSI_23) {
+		font.TSI_23.glyphs = kvfilter(font.TSI_23.glyphs, (k, v) => font.glyf[k]);
+	}
+	if (font.TSI5) {
+		font.TSI5 = kvfilter(font.TSI5, (k, v) => font.glyf[k]);
 	}
 };

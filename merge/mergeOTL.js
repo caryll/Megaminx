@@ -1,6 +1,6 @@
 "use strict";
 
-function mergeOTLTables(dst, src) {
+function mergeOTLTables(dst, src, priorizeSrc) {
 	if (!dst || !src) return;
 	for (const fid in src.features) {
 		dst.features[fid] = src.features[fid];
@@ -17,6 +17,11 @@ function mergeOTLTables(dst, src) {
 		} else {
 			dst.languages[lid] = src.languages[lid];
 		}
+	}
+	if (priorizeSrc) {
+		dst.lookupOrder = [src.lookupOrder || [], dst.lookupOrder || []];
+	} else {
+		dst.lookupOrder = [dst.lookupOrder || [], src.lookupOrder || []];
 	}
 }
 module.exports = mergeOTLTables;

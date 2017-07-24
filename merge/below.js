@@ -32,8 +32,8 @@ async function CompositeBelow(ctx, target, majorName, sideName, config) {
 		}
 	}
 	if (config.mergeOTL) {
-		mergeOTLTables(major.GSUB, side.GSUB, []);
-		mergeOTLTables(major.GPOS, side.GPOS, []);
+		mergeOTLTables(major.GSUB, side.GSUB, false);
+		mergeOTLTables(major.GPOS, side.GPOS, false);
 	}
 	// Change name
 	this.remove(sideName);

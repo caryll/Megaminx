@@ -1,7 +1,8 @@
 "use strict";
 
-exports.subset = async function(ctx, target, f) {
+exports.subset = async function(ctx, target, options) {
 	const font = this.items[target];
+	const f = options.by;
 	font.GSUB = {
 		languages: {},
 		features: {},
@@ -45,13 +46,11 @@ exports.subset = async function(ctx, target, f) {
 exports.accept = x => true;
 exports.not = f => x => !f(x);
 exports.all = (...fs) => x => {
-	for (let f of fs)
-		if (!f(x)) return false;
+	for (let f of fs) if (!f(x)) return false;
 	return true;
 };
 exports.either = (...fs) => x => {
-	for (let f of fs)
-		if (f(x)) return true;
+	for (let f of fs) if (f(x)) return true;
 	return false;
 };
 exports.between = (begin, end) => x => x >= begin && x <= end;

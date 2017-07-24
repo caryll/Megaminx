@@ -1,7 +1,10 @@
 "use strict";
 
-async function adjustGlyphs(ctx, demand, tfm) {
+const Transform = require("./geometry/transform");
+
+async function adjustGlyphs(ctx, demand, _tfm) {
 	const font = this.items[demand];
+	const tfm = Transform.from(_tfm);
 	for (const gid in font.glyf) {
 		let glyph = font.glyf[gid];
 		if (!glyph.contours) continue;

@@ -40,8 +40,9 @@ const GPOS_SCALER = {
 	gpos_mark_to_mark: scaleMarkToBase
 };
 
-async function RebaseFont(ctx, demand, scale) {
+async function RebaseFont(ctx, demand, options) {
 	const font = this.items[demand];
+	const { scale } = options;
 	for (const gid in font.glyf) {
 		// We ensure that ideographic sources are all CFF
 		// therefore, no references.
@@ -88,8 +89,7 @@ async function RebaseFont(ctx, demand, scale) {
 			let lookup = font.GPOS.lookups[lid];
 			if (GPOS_SCALER[lookup.type]) {
 				let scaler = GPOS_SCALER[lookup.type];
-				for (let subtable of lookup.subtables)
-					scaler(subtable, scale);
+				for (let subtable of lookup.subtables) scaler(subtable, scale);
 			}
 		}
 	}

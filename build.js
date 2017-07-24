@@ -45,11 +45,9 @@ function sanityFeatures(table) {
 	table.features = allfeats;
 }
 
-async function Build(ctx, demand, destination, options) {
-	options = options || {};
-
+async function Build(ctx, demand, options) {
+	const destination = options.to;
 	let t = this;
-
 	const font = t.items[demand];
 	if (font.TSI_01) {
 		font.cvt_ = null;

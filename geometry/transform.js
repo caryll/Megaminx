@@ -36,6 +36,17 @@ class Transform {
 	}
 }
 
+Transform.from = function(obj) {
+	return new Transform(
+		obj.xx || 1,
+		obj.yx || 0,
+		obj.xy || 0,
+		obj.yy || 1,
+		obj.x || 0,
+		obj.y || 0
+	);
+};
+
 Transform.learn = function(zero, x1, y1) {
 	return new Transform(
 		x1.x - zero.x,

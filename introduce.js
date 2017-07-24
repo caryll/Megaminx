@@ -13,7 +13,7 @@ function getStream(sourcefile, options) {
 		const cp = child_process.spawn(which.sync(`otfccdump`), [
 			sourcefile,
 			"--glyph-name-prefix",
-			options.partname + "/",
+			(options.group || options.partname) + "/",
 			"--ignore-hints",
 			"--no-bom",
 			"--decimal-cmap"
@@ -25,8 +25,9 @@ function getStream(sourcefile, options) {
 	}
 }
 
-function introduce(ctx, partname, sourcefile, options) {
+function introduce(ctx, partname, options) {
 	const t = this;
+	const sourcefile = options.from;
 	return new Promise(function(resolve, reject) {
 		let font = {};
 		getStream(sourcefile, { partname: partname })

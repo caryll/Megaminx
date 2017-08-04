@@ -1,10 +1,11 @@
 "use strict";
 
-const c2q = require("otfcc-c2q");
+const c2q = require("./quadify/ctq");
 
 const arrayRotate = (function() {
 	// save references to array functions to make lookup faster
-	var push = Array.prototype.push, splice = Array.prototype.splice;
+	var push = Array.prototype.push,
+		splice = Array.prototype.splice;
 
 	return function(count) {
 		var len = this.length >>> 0, // convert to uint
@@ -34,9 +35,10 @@ function canonicalStart(font) {
 	}
 }
 
-async function Quadify(ctx, demand) {
+async function Quadify(ctx, demand, options) {
 	const font = this.items[demand];
-	c2q(font, false, true, 1);
+	options = options || {};
+	c2q(font, options.splitAtX, options.splitAtY, options.error || 1);
 	canonicalStart(font);
 }
 

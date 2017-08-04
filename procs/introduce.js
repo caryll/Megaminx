@@ -1,20 +1,23 @@
 "use strict";
 
 const child_process = require("child_process");
-const Z = require("./geometry/glyph-point");
 const JSONStream = require("JSONStream");
 const which = require("which");
 const path = require("path");
 const fs = require("fs-extra");
 
+const Z = require("../geometry/glyph-point");
+
 function getStream(sourcefile, options) {
+	if (sourcefile === "|") {
+		return process.stdin;
+	}
 	const ext = path.parse(sourcefile).ext;
 	if (ext === ".ttf" || ext === ".otf") {
 		const cp = child_process.spawn(which.sync(`otfccdump`), [
 			sourcefile,
-			"--glyph-name-prefix",
-			(options.group || options.partname) + "/",
-			"--ignore-hints",
+			...(options.prefix ? ["--glyph-name-prefix", options.prefix + "/"] : []),
+			...(options.ignoreHints ? ["--ignore-hints"] : []),
 			"--no-bom",
 			"--decimal-cmap"
 		]);
@@ -30,7 +33,7 @@ function introduce(ctx, partname, options) {
 	const sourcefile = options.from;
 	return new Promise(function(resolve, reject) {
 		let font = {};
-		getStream(sourcefile, { partname: partname })
+		getStream(sourcefile, options)
 			.pipe(JSONStream.parse("$*"))
 			.on("data", function(data) {
 				font[data.key] = data.value;

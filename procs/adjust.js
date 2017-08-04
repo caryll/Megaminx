@@ -1,6 +1,6 @@
 "use strict";
 
-const Transform = require("./geometry/transform");
+const Transform = require("../geometry/transform");
 
 async function adjustGlyphs(ctx, demand, _tfm) {
 	const font = this.items[demand];

@@ -2,7 +2,7 @@
 
 // Garbage collection
 
-const { kvfilter, vmap, kvmap } = require("./support/kvfns");
+const { kvfilter, vmap, kvmap } = require("../support/kvfns");
 
 function mark(lut, obj) {
 	if (!obj) return;
@@ -72,10 +72,10 @@ module.exports = async function(ctx, target) {
 				g1[g] = font.glyf[g];
 				nk++;
 			} else {
-				console.log("    Megaminx Glyph GC : Removed unreachable glyph", g, ".");
+				process.stderr.write(`    Megaminx Glyph GC : Removed unreachable glyph ${g}\n`);
 			}
 		}
-		console.log("  Megaminx Glyph GC :", na, "->", nk);
+		process.stderr.write(`  Megaminx Glyph GC : ${na} -> ${nk}\n`);
 		font.glyf = g1;
 		if (nk >= na) break;
 	}

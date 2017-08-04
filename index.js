@@ -1,23 +1,26 @@
 module.exports = {
-	adjust: require("./adjust"),
-	alias: require("./alias"),
-	build: require("./build"),
-	gc: require("./gc"),
-	introduce: require("./introduce"),
-	quadify: require("./quadify"),
-	rebase: require("./rebase"),
-	setEncodings: require("./set-encodings"),
-	subset: require("./subset"),
+	// Support
 	Workflow: require("./workflow"),
-	merge: {
-		above: require("./merge/above"),
-		below: require("./merge/below")
-	},
 	geometry: {
 		Point: require("./geometry/point"),
 		GlyphPoint: require("./geometry/glyph-point"),
 		Transform: require("./geometry/transform")
 	},
 	contourHash: require("./support/contourhash"),
-	kvfns: require("./support/kvfns")
+	kvfns: require("./support/kvfns"),
+
+	// Procedures
+	adjust: require("./procs/adjust"),
+	alias: require("./procs/alias"),
+	build: require("./procs/build"),
+	gc: require("./procs/gc"),
+	introduce: require("./procs/introduce"),
+	quadify: require("./procs/quadify"),
+	rebase: require("./procs/rebase"),
+	setEncodings: require("./procs/set-encodings"),
+	subset: require("./procs/subset"),
+	merge: {
+		above: require("./procs/merge/above"),
+		below: require("./procs/merge/below")
+	}
 };

@@ -18,6 +18,7 @@ function getStream(sourcefile, options) {
 			sourcefile,
 			...(options.prefix ? ["--glyph-name-prefix", options.prefix + "/"] : []),
 			...(options.ignoreHints ? ["--ignore-hints"] : []),
+			...(options.nameByHash ? ["--name-by-hash"] : []),
 			"--no-bom",
 			"--decimal-cmap"
 		]);

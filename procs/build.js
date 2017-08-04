@@ -67,8 +67,8 @@ async function Build(ctx, demand, options) {
 				...["-o", destination],
 				...(options.optimize ? ["-O3"] : []),
 				...(options.sign ? ["-s"] : []),
-				"-s",
-				"--keep-average-char-width"
+				...(options.keepOrder ? ["-k"] : []),
+				...(options.recalculateCharWidth ? [] : ["--keep-average-char-width"])
 			]);
 			stringifyToStream(font, cp.stdin);
 			cp.stderr.on("data", function(data) {

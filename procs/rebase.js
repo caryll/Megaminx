@@ -35,9 +35,53 @@ function scaleMarkToBase(subtable, scale) {
 		}
 	}
 }
+function scaleMarkToLig(subtable, scale) {
+	for (let gid in subtable.marks) {
+		subtable.marks[gid].x *= scale;
+		subtable.marks[gid].y *= scale;
+	}
+	for (let gid in subtable.bases) {
+		for (let component of subtable.bases[gid]) {
+			for (let kid in component) {
+				component[kid].x *= scale;
+				component[kid].y *= scale;
+			}
+		}
+	}
+}
+
+function scaleGposValue(entry, scale) {
+	if (entry.dx) entry.dx *= scale;
+	if (entry.dy) entry.dy *= scale;
+	if (entry.dWidth) entry.dWidth *= scale;
+	if (entry.dHeight) entry.dHeight *= scale;
+	return Object.assign({}, entry);
+}
+
+function scaleGposSingle(subtable, scale) {
+	for (let gid in subtable) {
+		scaleGposValue(subtable[gid]);
+	}
+}
+
+function scaleGposPair(subtable, scale) {
+	for (let r of subtable.matrix) {
+		for (let j = 0; j < r.length; j++) {
+			if (typeof r[j] === "number") r[j] *= scale;
+			else {
+				r[j].first = scaleGposValue(r[j].first);
+				r[j].second = scaleGposValue(r[j].second);
+			}
+		}
+	}
+}
+
 const GPOS_SCALER = {
 	gpos_mark_to_base: scaleMarkToBase,
-	gpos_mark_to_mark: scaleMarkToBase
+	gpos_mark_to_mark: scaleMarkToBase,
+	gpos_mark_to_ligature: scaleMarkToLig,
+	gpos_single: scaleGposSingle,
+	gpos_pair: scaleGposPair
 };
 
 async function RebaseFont(ctx, demand, options) {

@@ -58,6 +58,7 @@ async function Build(ctx, demand, options) {
 	sanityFeatures(font.GSUB);
 	sanityFeatures(font.GPOS);
 	if (destination === "|") {
+		process.stdout.setEncoding("utf8");
 		await stringifyToStream(font, process.stdout, true);
 	} else {
 		const ext = path.parse(destination).ext;

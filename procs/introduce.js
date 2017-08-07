@@ -10,6 +10,8 @@ const Z = require("../geometry/glyph-point");
 
 function getStream(sourcefile, options) {
 	if (sourcefile === "|") {
+		process.stdin.resume();
+		process.stdin.setEncoding("utf8");
 		return process.stdin;
 	}
 	const ext = path.parse(sourcefile).ext;

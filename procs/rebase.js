@@ -69,8 +69,8 @@ function scaleGposPair(subtable, scale) {
 		for (let j = 0; j < r.length; j++) {
 			if (typeof r[j] === "number") r[j] *= scale;
 			else {
-				r[j].first = scaleGposValue(r[j].first);
-				r[j].second = scaleGposValue(r[j].second);
+				if (r[j].first) r[j].first = scaleGposValue(r[j].first);
+				if (r[j].second) r[j].second = scaleGposValue(r[j].second);
 			}
 		}
 	}
@@ -87,6 +87,7 @@ const GPOS_SCALER = {
 async function RebaseFont(ctx, demand, options) {
 	const font = this.items[demand];
 	const { scale } = options;
+	if (scale === 1) return;
 	for (const gid in font.glyf) {
 		// We ensure that ideographic sources are all CFF
 		// therefore, no references.

@@ -1,16 +1,16 @@
 "use strict";
 
 const BUFFER_LIMIT = 1e6;
-const Readable = require("stream").Readable;
 
 module.exports = function(obj, writer, dontend) {
 	let buffer = "";
 	function push(str) {
 		buffer += str;
-		if (buffer.length > BUFFER_LIMIT) {
-			writer.write(new Buffer(buffer));
-			buffer = "";
-		}
+		if (buffer.length > BUFFER_LIMIT) flush();
+	}
+	function flush() {
+		writer.write(buffer, "utf8");
+		buffer = "";
 	}
 	function traverse(obj, level) {
 		switch (typeof obj) {
@@ -50,10 +50,15 @@ module.exports = function(obj, writer, dontend) {
 			}
 		}
 	}
-	return new Promise(function(resolve) {
+	return new Promise(function(resolve, reject) {
 		traverse(obj, 0);
-		if (buffer) writer.write(new Buffer(buffer));
-		if (!dontend) writer.end();
-		resolve(null);
+		if (buffer) flush();
+		if (dontend) {
+			resolve(null);
+		} else {
+			writer.end();
+			writer.on("close", () => resolve(null));
+			writer.on("error", why => reject(why));
+		}
 	});
 };

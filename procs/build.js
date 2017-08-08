@@ -63,20 +63,17 @@ async function Build(ctx, demand, options) {
 	} else {
 		const ext = path.parse(destination).ext;
 		if (ext === ".ttf" || ext === ".otf") {
-			await fs.ensureFile(destination);
-			let cp = child_process.spawn(which.sync("otfccbuild"), [
+			const cp = child_process.spawn(which.sync("otfccbuild"), [
 				...["-o", destination],
 				...(options.optimize ? ["-O3"] : []),
 				...(options.sign ? ["-s"] : []),
 				...(options.keepOrder ? ["-k"] : []),
 				...(options.recalculateCharWidth ? [] : ["--keep-average-char-width"])
 			]);
-			stringifyToStream(font, cp.stdin);
 			cp.stderr.on("data", function(data) {
-				if (options.verbose) {
-					process.stderr.write(data);
-				}
+				if (options.verbose) process.stderr.write(data);
 			});
+			stringifyToStream(font, cp.stdin);
 			await cppm(cp);
 		} else {
 			const out = fs.createWriteStream(destination);

@@ -4,7 +4,8 @@ module.exports = {
 	geometry: {
 		Point: require("./geometry/point"),
 		GlyphPoint: require("./geometry/glyph-point"),
-		Transform: require("./geometry/transform")
+		Transform: require("./geometry/transform"),
+		c2q: require("./procs/quadify/ctq")
 	},
 	contourHash: require("./support/contourhash"),
 	kvfns: require("./support/kvfns"),

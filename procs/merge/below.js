@@ -1,6 +1,7 @@
 "use strict";
 const mergeOTLTables = require("./mergeOTL");
 
+// assume glyph names do not conflict -- simple when using name prefix
 async function CompositeBelow(ctx, target, majorName, sideName, config) {
 	config = config || {};
 	const major = this.items[majorName];
@@ -29,6 +30,9 @@ async function CompositeBelow(ctx, target, majorName, sideName, config) {
 		major.glyf[gid] = side.glyf[gid];
 		if (major.TSI_23 && major.TSI_23.glyphs && side.TSI_23 && side.TSI_23.glyphs) {
 			major.TSI_23.glyphs[gid] = side.TSI_23.glyphs[gid];
+		}
+		if (major.TSI_01 && major.TSI_01.glyphs && side.TSI_01 && side.TSI_01.glyphs) {
+			major.TSI_01.glyphs[gid] = side.TSI_01.glyphs[gid];
 		}
 	}
 	if (config.mergeOTL) {

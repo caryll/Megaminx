@@ -1,5 +1,8 @@
 "use strict";
 
+const Point = require("./point");
+const clone = require("clone");
+
 class Transform {
 	constructor(xx, yx, xy, yy, x, y) {
 		this.xx = xx;
@@ -10,6 +13,9 @@ class Transform {
 		this.y = y;
 	}
 	applyTo(z) {
+		return this.applyTo$(clone(z));
+	}
+	applyTo$(z) {
 		let x = z.x;
 		let y = z.y;
 		z.x = x * this.xx + y * this.yx + this.x;
@@ -58,6 +64,8 @@ Transform.learn = function(zero, x1, y1) {
 	);
 };
 Transform.neutral = new Transform(1, 0, 0, 1, 0, 0);
-Transform.shift = (x, y) => new Transform(1, 0, 0, 1, x, y);
+
+Transform.translate = (x, y) => new Transform(1, 0, 0, 1, x, y);
+Transform.shift = Transform.translate;
 
 module.exports = Transform;

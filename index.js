@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
 	// Support
 	Workflow: require("./workflow"),
@@ -23,5 +25,11 @@ module.exports = {
 	merge: {
 		above: require("./procs/merge/above"),
 		below: require("./procs/merge/below")
+	},
+
+	// Detailed manipulation
+	manip: {
+		glyph: require("./manip/glyph-manip-context"),
+		glyphKit: require("./manip/manip-kit")
 	}
 };

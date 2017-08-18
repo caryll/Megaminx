@@ -75,6 +75,10 @@ class Glyph {
 	clone() {
 		return clone(this);
 	}
+	assign(o) {
+		Object.assign(this, o);
+		return this;
+	}
 }
 
 Glyph.from = function(font, glyph, name, format) {

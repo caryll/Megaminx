@@ -27,6 +27,21 @@ function markSubtable(lut, type, st) {
 		case "gsub_alternate":
 			for (let k in st) if (lut[k]) mark(lut, st[k]);
 			break;
+		case "gsub_ligature":
+			for (let sub of st.substitutions) {
+				let check = true;
+				for (let g of sub.from) {
+					if (!lut[g]) {
+						check = false;
+					}
+				}
+				if (check) mark(lut, sub.to);
+			}
+			break;
+		case "gsub_chaining":
+			// gsub-chaining uses external LUTs
+			// so ignore glyphs in the <match> part
+			break;
 		default:
 			mark(lut, st);
 			break;
@@ -71,8 +86,6 @@ module.exports = async function(ctx, target) {
 			if (lut[g] === true) {
 				g1[g] = font.glyf[g];
 				nk++;
-			} else {
-				process.stderr.write(`    Megaminx Glyph GC : Removed unreachable glyph ${g}\n`);
 			}
 		}
 		process.stderr.write(`  Megaminx Glyph GC : ${na} -> ${nk}\n`);

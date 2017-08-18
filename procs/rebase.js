@@ -1,6 +1,7 @@
 "use strict";
 
 function scaleGlyph(glyph, scale, ori, target) {
+	glyph.em *= scale;
 	glyph.advanceWidth *= scale;
 	glyph.advanceHeight *= scale;
 	glyph.verticalOrigin *= scale;
@@ -8,6 +9,7 @@ function scaleGlyph(glyph, scale, ori, target) {
 	delete glyph.stemV;
 	delete glyph.hintMasks;
 	delete glyph.contourMasks;
+	delete glyph.instructions;
 	if (glyph.contours) {
 		for (var j = 0; j < glyph.contours.length; j++) {
 			let contour = glyph.contours[j];
@@ -51,16 +53,17 @@ function scaleMarkToLig(subtable, scale) {
 }
 
 function scaleGposValue(entry, scale) {
-	if (entry.dx) entry.dx *= scale;
-	if (entry.dy) entry.dy *= scale;
-	if (entry.dWidth) entry.dWidth *= scale;
-	if (entry.dHeight) entry.dHeight *= scale;
-	return Object.assign({}, entry);
+	return {
+		dx: (entry.dx || 0) * scale,
+		dy: (entry.dy || 0) * scale,
+		dWidth: (entry.dWidth || 0) * scale,
+		dHeight: (entry.dHeight || 0) * scale
+	};
 }
 
 function scaleGposSingle(subtable, scale) {
 	for (let gid in subtable) {
-		scaleGposValue(subtable[gid]);
+		subtable[gid] = scaleGposValue(subtable[gid], scale);
 	}
 }
 
@@ -69,8 +72,8 @@ function scaleGposPair(subtable, scale) {
 		for (let j = 0; j < r.length; j++) {
 			if (typeof r[j] === "number") r[j] *= scale;
 			else {
-				if (r[j].first) r[j].first = scaleGposValue(r[j].first);
-				if (r[j].second) r[j].second = scaleGposValue(r[j].second);
+				if (r[j].first) r[j].first = scaleGposValue(r[j].first, scale);
+				if (r[j].second) r[j].second = scaleGposValue(r[j].second, scale);
 			}
 		}
 	}

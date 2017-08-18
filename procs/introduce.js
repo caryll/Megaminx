@@ -6,7 +6,7 @@ const which = require("which");
 const path = require("path");
 const fs = require("fs-extra");
 
-const Z = require("../geometry/glyph-point");
+const Font = require("../types/font");
 
 function getStream(sourcefile, options) {
 	if (sourcefile === "|") {
@@ -35,7 +35,7 @@ function introduce(ctx, partname, options) {
 	const t = this;
 	const sourcefile = options.from;
 	return new Promise(function(resolve, reject) {
-		let font = {};
+		let font = new Font({});
 		getStream(sourcefile, options)
 			.pipe(JSONStream.parse("$*"))
 			.on("data", function(data) {
@@ -43,13 +43,7 @@ function introduce(ctx, partname, options) {
 			})
 			.on("close", function() {
 				for (let k in font.glyf) {
-					let glyph = font.glyf[k];
-					if (!glyph.contours) continue;
-					for (let contour of glyph.contours) {
-						for (let j = 0; j < contour.length; j++) {
-							contour[j] = new Z(contour[j].x, contour[j].y, contour[j].on);
-						}
-					}
+					font.glyf[k] = font.createGlyph(k, font.glyf[k]);
 				}
 				t.introduce(partname, font);
 				return resolve(font);

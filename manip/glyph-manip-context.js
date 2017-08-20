@@ -62,9 +62,16 @@ class GlyphFinder {
 	glyph(gname) {
 		return Glyph.fromCopy(this.font, this.glyph$(gname), gname);
 	}
+	unicode$(u) {
+		const gn = this.gname.unicode(u);
+		if (gn) return this.glyph$(gn);
+	}
 	unicode(u) {
 		const gn = this.gname.unicode(u);
 		if (gn) return this.glyph(gn);
+	}
+	u$(u) {
+		return this.unicode$(u);
 	}
 	u(u) {
 		return this.unicode(u);

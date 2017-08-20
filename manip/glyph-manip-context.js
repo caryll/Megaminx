@@ -78,6 +78,21 @@ class GlyphFinder {
 	}
 }
 
+const vsData = (function() {
+	let data = {};
+	for (let j = 0; j <= 16; j++) {
+		data["VS" + j] = 0xfe00 + j - 1;
+		data["VS0" + j] = 0xfe00 + j - 1;
+		data["VS00" + j] = 0xfe00 + j - 1;
+	}
+	for (let j = 17; j <= 256; j++) {
+		data["VS" + j] = 0xe0100 + j - 17;
+		data["VS0" + j] = 0xe0100 + j - 17;
+		data["VS00" + j] = 0xe0100 + j - 17;
+	}
+	return data;
+})();
+
 class GlyphSaver {
 	constructor(font) {
 		this.font = font;
@@ -94,6 +109,12 @@ class GlyphSaver {
 	}
 	async encode(unicode, gname) {
 		this.font.cmap[unicodeOf(unicode)] = gname;
+	}
+	async variant(unicode, selector, gname) {
+		if (!this.font.cmap_uvs) this.font.cmap_uvs = {};
+		if (vsData[selector]) selector = vsData[selector];
+		this.font.cmap_uvs[unicodeOf(unicode) + " " + selector] = gname;
+		return gname;
 	}
 }
 

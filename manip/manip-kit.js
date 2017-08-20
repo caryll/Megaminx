@@ -3,19 +3,22 @@
 function Saving(vm, ctx, oldGNs, g) {
 	return {
 		glyph: g,
-		saveMap: async function(mapgns, gn, u) {
+		saveMap: async function(mapgns, gn, u, vs, unicodeVS) {
 			let gn1 = await ctx.save.to(gn, u, g);
+			if (vs) {
+				await ctx.save.variant(unicodeVS || u, vs, gn1);
+			}
 			if (vm.addMap) vm.addMap(mapgns, gn1);
 			return gn1;
 		},
 		saveInsitu: async function() {
 			return this.saveMap(oldGNs, oldGNs[0], null);
 		},
-		save: async function(gn, u) {
-			return this.saveMap(oldGNs, gn, u);
+		save: async function(...args) {
+			return this.saveMap(oldGNs, ...args);
 		},
 		saveU: async function(u) {
-			await this.save(null, u);
+			return await this.save(null, u);
 		}
 	};
 }

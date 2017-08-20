@@ -3,11 +3,8 @@
 function Saving(vm, ctx, oldGNs, g) {
 	return {
 		glyph: g,
-		saveMap: async function(mapgns, gn, u, vs, unicodeVS) {
+		saveMap: async function(mapgns, gn, u) {
 			let gn1 = await ctx.save.to(gn, u, g);
-			if (vs) {
-				await ctx.save.variant(unicodeVS || u, vs, gn1);
-			}
 			if (vm.addMap) vm.addMap(mapgns, gn1);
 			return gn1;
 		},

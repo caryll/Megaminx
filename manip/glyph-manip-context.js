@@ -109,6 +109,7 @@ class GlyphSaver {
 	}
 	async encode(unicode, gname) {
 		this.font.cmap[unicodeOf(unicode)] = gname;
+		return gname;
 	}
 	async variant(unicode, selector, gname) {
 		if (!this.font.cmap_uvs) this.font.cmap_uvs = {};

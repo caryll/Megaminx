@@ -33,7 +33,7 @@ exports.run = function(kit, proc, arity, ..._args) {
 	const procArgs = _args.slice(arity);
 	const glyphs = [];
 	for (let gn of glyphNames) {
-		let g = kit.ctx.find.glyph(gn);
+		let g = kit.ctx.find.glyph$(gn);
 		if (!g) {
 			return EmptySaving();
 		}

@@ -56,25 +56,25 @@ class GlyphFinder {
 		this.font = font;
 		this.gname = findName;
 	}
-	glyph$(gname) {
+	glyph(gname) {
 		return this.font.glyf[gname];
 	}
-	glyph(gname) {
-		return Glyph.fromCopy(this.font, this.glyph$(gname), gname);
-	}
-	unicode$(u) {
-		const gn = this.gname.unicode(u);
-		if (gn) return this.glyph$(gn);
+	glyph$(gname) {
+		return Glyph.fromCopy(this.font, this.glyph(gname), gname);
 	}
 	unicode(u) {
 		const gn = this.gname.unicode(u);
 		if (gn) return this.glyph(gn);
 	}
-	u$(u) {
-		return this.unicode$(u);
+	unicode$(u) {
+		const gn = this.gname.unicode(u);
+		if (gn) return this.glyph$(gn);
 	}
 	u(u) {
 		return this.unicode(u);
+	}
+	u$(u) {
+		return this.unicode$(u);
 	}
 }
 

@@ -114,7 +114,9 @@ function createTSI1(font, gmap, tsi1) {
 			.replace(
 				/^\s*(OFFSET|SOFFSET|ANCHOR|SANCHOR|OVERLAP|NONOVERLAP|USEMYMETRICS)\[r?\].*$/gim,
 				""
-			);
+			)
+			.replace(/^\/\* Megaminx Composite TT compiler \*\/$/gm, "")
+			.replace(/\n([ \t]*\n)+/g, "\n");
 		let ans = "/* Megaminx Composite TT compiler */\n";
 		for (let r of refs) {
 			if (r.useMyMetrics) ans += `USEMYMETRICS[]\n`;

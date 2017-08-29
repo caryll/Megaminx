@@ -196,6 +196,15 @@ function toquad(contour, splitAtX, splitAtY, err) {
 function haspt(c) {
 	return c && c.length > 1;
 }
+function byFirstPointCoord(a, b) {
+	if (!a.length) return -1;
+	if (!b.length) return 1;
+	let z1 = a[0];
+	let z2 = b[0];
+	return z1.y !== z2.y
+		? z1.y - z2.y
+		: z1.x !== z2.x ? z1.x - z2.x : byFirstPointCoord(a.slice(1), b.slice(1));
+}
 
 function c2qContours(contours, splitAtX, splitAtY, err) {
 	let ans = [];
@@ -203,7 +212,7 @@ function c2qContours(contours, splitAtX, splitAtY, err) {
 		const c1 = toquad(c, splitAtX, splitAtY, err || 1);
 		if (haspt(c1)) ans.push(c1);
 	}
-	return ans;
+	return ans.sort(byFirstPointCoord);
 }
 
 module.exports = function(font, splitAtX, splitAtY, err) {

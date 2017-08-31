@@ -12,4 +12,8 @@ class GlyphPoint extends Point {
 	}
 }
 
+GlyphPoint.from = function(z) {
+	return new GlyphPoint(z.x, z.y, z.on);
+};
+
 module.exports = GlyphPoint;

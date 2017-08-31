@@ -5,6 +5,7 @@ const JSONStream = require("JSONStream");
 const which = require("which");
 const path = require("path");
 const fs = require("fs-extra");
+const stripBomStream = require("strip-bom-stream");
 
 const Font = require("../types/font");
 

@@ -1,4 +1,5 @@
 const cubicToQuad = require("cubic2quad");
+const Z = require("../../geometry/glyph-point");
 
 function removeMids(contour, err) {
 	var last = contour.length - 1;
@@ -50,22 +51,20 @@ function removeMids(contour, err) {
 		return !x.rem;
 	});
 }
+function xprior(a, b) {
+	return a.y < b.y || (a.y === b.y && ((a.on && !b.on) || (a.on === b.on && a.x < b.x)));
+}
 
 function canonicalStart(_points) {
-	var jm = 0;
-	var points = _points.reverse();
-	for (var j = 1; j < points.length; j++) {
-		if (points[j].y > points[jm].y) {
-			jm = j;
-		}
-	}
-	for (var j = 0; j < points.length; j++) {
-		if (!points[j].on) continue;
-		if (
-			points[j].y < points[jm].y ||
-			(points[j].y === points[jm].y && points[j].x < points[jm].x)
-		) {
-			jm = j;
+	const points = _points.reverse().map(z => {
+		z.x = Math.round(z.x * 1024) / 1024;
+		z.y = Math.round(z.y * 1024) / 1024;
+		return z;
+	});
+	let jm = 0;
+	for (var j = 0; j < points.length * 2; j++) {
+		if (xprior(points[j % points.length], points[jm])) {
+			jm = j % points.length;
 		}
 	}
 	return points.slice(jm).concat(points.slice(0, jm));
@@ -156,14 +155,10 @@ function toquad(contour, splitAtX, splitAtY, err) {
 	if (contour.length === 0) return [];
 	if (contour.length === 1) return [contour[0]];
 	var newcontour = [];
-	contour.push({
-		x: contour[0].x,
-		y: contour[0].y,
-		on: true
-	});
+	contour.push(new Z(contour[0].x, contour[0].y, true));
 	for (var j = 0; j < contour.length; j++) {
 		if (contour[j].on) {
-			newcontour.push(contour[j]);
+			newcontour.push(Z.from(contour[j]));
 		} else {
 			var z1 = newcontour[newcontour.length - 1];
 			var z2 = contour[j];
@@ -179,14 +174,10 @@ function toquad(contour, splitAtX, splitAtY, err) {
 			for (var k = 2; k < quadzs.length - 2; k += 2) {
 				var cx = quadzs[k];
 				var cy = quadzs[k + 1];
-				newcontour.push({ x: cx, y: cy, on: on });
+				newcontour.push(new Z(cx, cy, on));
 				on = !on;
 			}
-			newcontour.push({
-				x: z4.x,
-				y: z4.y,
-				on: true
-			});
+			newcontour.push(new Z(z4.x, z4.y, true));
 			j += 2;
 		}
 	}

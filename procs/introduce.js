@@ -38,6 +38,7 @@ function introduce(ctx, partname, options) {
 	return new Promise(function(resolve, reject) {
 		let font = new Font({});
 		getStream(sourcefile, options)
+			.pipe(stripBomStream())
 			.pipe(JSONStream.parse("$*"))
 			.on("data", function(data) {
 				font[data.key] = data.value;

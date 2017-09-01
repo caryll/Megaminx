@@ -94,7 +94,10 @@ function decideGlyphOrder(font, ignoreOld) {
 			n += 1;
 		}
 	}
-	const gord = [...m].map(a => a[1]).sort((a, b) => a.compareTo(b)).map(x => x.gname);
+	const gord = [...m]
+		.map(a => a[1])
+		.sort((a, b) => a.compareTo(b))
+		.map(x => x.gname);
 	const gmap = new Map(gord.map((gname, j) => [gname, j]));
 	return [gord, gmap];
 }
@@ -155,7 +158,7 @@ async function Build(ctx, demand, options) {
 	sanityFeatures(font.GSUB);
 	sanityFeatures(font.GPOS);
 	if (destination === "|") {
-		process.stdout.setEncoding("utf8");
+		if (process.stdout.setEncoding instanceof Function) process.stdout.setEncoding("utf8");
 		await stringifyToStream(font, process.stdout, true);
 	} else {
 		const ext = path.parse(destination).ext;

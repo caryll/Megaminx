@@ -23,7 +23,8 @@ function getStream(sourcefile, options) {
 			...(options.ignoreHints ? ["--ignore-hints"] : []),
 			...(options.nameByHash ? ["--name-by-hash"] : []),
 			"--no-bom",
-			"--decimal-cmap"
+			"--decimal-cmap",
+			"--quiet"
 		]);
 		cp.stdout.setEncoding("utf8");
 		return cp.stdout;

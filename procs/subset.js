@@ -3,17 +3,19 @@
 exports.subset = async function(ctx, target, options) {
 	const font = this.items[target];
 	const f = options.by;
-	font.GSUB = {
-		languages: {},
-		features: {},
-		lookups: {}
-	};
-	font.GPOS = {
-		languages: {},
-		features: {},
-		lookups: {}
-	};
-	font.GDEF = {};
+	if (!options.keepOTL) {
+		font.GSUB = {
+			languages: {},
+			features: {},
+			lookups: {}
+		};
+		font.GPOS = {
+			languages: {},
+			features: {},
+			lookups: {}
+		};
+		font.GDEF = {};
+	}
 
 	let glyf = {};
 	let cmap = {};
@@ -38,7 +40,7 @@ exports.subset = async function(ctx, target, options) {
 			};
 		}
 	}
-	font.glyf = glyf;
+	if (!options.keepOTL) font.glyf = glyf;
 	font.cmap = cmap;
 	font.glyph_order = [gid0];
 };

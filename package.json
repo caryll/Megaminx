@@ -1,7 +1,8 @@
 {
   "name": "megaminx",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A typeface manipulation toolkit",
+  "engines" : { "node" : ">=8.4.0" },
   "main": "index.js",
   "author": "belleve@typeof.net",
   "scripts": {

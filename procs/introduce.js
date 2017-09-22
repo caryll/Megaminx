@@ -46,7 +46,7 @@ function introduce(ctx, partname, options) {
 			})
 			.on("close", function() {
 				for (let k in font.glyf) {
-					font.glyf[k] = font.createGlyph(k, font.glyf[k]);
+					font.glyf[k] = font.createGlyph(k, font.glyf[k], options.prefix);
 				}
 				t.introduce(partname, font);
 				return resolve(font);

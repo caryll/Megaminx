@@ -8,7 +8,7 @@ class Font {
 		data = data || {};
 		Object.assign(this, data);
 	}
-	createGlyph(name, data) {
+	createGlyph(name, data, tag) {
 		data = data || {};
 		if (!data.contours) data.contours = [];
 		if (!data.references) data.references = [];
@@ -17,12 +17,14 @@ class Font {
 				contour[j] = new Z(contour[j].x, contour[j].y, contour[j].on);
 			}
 		}
-		return Glyph.from(
+		const g = Glyph.from(
 			this,
 			data,
 			name,
 			this.CFF_ ? Glyph.formats.CUBIC : Glyph.formats.QUADRATIC
 		);
+		g.tag = tag;
+		return g;
 	}
 }
 

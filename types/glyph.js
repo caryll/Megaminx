@@ -8,6 +8,7 @@ const { mix } = require("../support/calc");
 class Glyph {
 	constructor(em, format) {
 		this.em = em;
+		this.tag = null;
 		this.format = format;
 		this.advanceWidth = 0;
 		this.advanceHeight = 0;
@@ -98,6 +99,7 @@ Glyph.fromCopy = function(font, glyph, name, format) {
 
 function copyglyph(g, f) {
 	const g1 = clone(g);
+	g1.tag = null;
 	if (f && g1.references) {
 		if (!g1.contours) g1.contours = [];
 		for (let ref of g1.references) {

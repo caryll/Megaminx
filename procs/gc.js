@@ -20,11 +20,14 @@ function mark(lut, obj) {
 	}
 }
 
-function markSubtable(lut, type, st) {
+function markSubtable(lut, type, st, options) {
 	switch (type) {
 		case "gsub_single":
 		case "gsub_multi":
+			for (let k in st) if (lut[k]) mark(lut, st[k]);
+			break;
 		case "gsub_alternate":
+			if (options.ignoreAltSub) break;
 			for (let k in st) if (lut[k]) mark(lut, st[k]);
 			break;
 		case "gsub_ligature":
@@ -48,7 +51,7 @@ function markSubtable(lut, type, st) {
 	}
 }
 
-module.exports = async function(ctx, target) {
+module.exports = async function(ctx, target, options) {
 	const font = this.items[target];
 	for (let passes = 0; passes < 16; passes++) {
 		let lut = {};
@@ -65,7 +68,7 @@ module.exports = async function(ctx, target) {
 					const lookup = font.GSUB.lookups[l];
 					if (lookup && lookup.subtables) {
 						for (let st of lookup.subtables) {
-							markSubtable(lut, lookup.type, st);
+							markSubtable(lut, lookup.type, st, options || {});
 						}
 					}
 				}

@@ -34,13 +34,13 @@ class GlyphNameFinder {
 		if (!font.GSUB) return gn;
 		let candidateLookups = [];
 		for (let k in font.GSUB.features) {
-			if (k.slice(0, 4) === feature) {
+			if (k.slice(0, 4) === feature && font.GSUB.features[k]) {
 				for (let lookupid of font.GSUB.features[k]) candidateLookups.push(lookupid);
 			}
 		}
 		for (let tid of candidateLookups) {
 			let lookup = font.GSUB.lookups[tid];
-			if (!lookup || lookup.type != "gsub_single") continue;
+			if (!lookup || lookup.type != "gsub_single" || !lookup.subtables) continue;
 			for (let subtable of lookup.subtables) {
 				if (subtable[gn]) {
 					return subtable[gn];

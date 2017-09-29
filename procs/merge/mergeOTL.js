@@ -24,4 +24,12 @@ function mergeOTLTables(dst, src, priorizeSrc) {
 		dst.lookupOrder = [dst.lookupOrder || [], src.lookupOrder || []];
 	}
 }
-module.exports = mergeOTLTables;
+exports.mergeOTLTables = mergeOTLTables;
+
+exports.mergeGDEF = function(first, second) {
+	return {
+		markAttachClassDef: Object.assign({}, first.markAttachClassDef, second.markAttachClassDef),
+		glyphClassDef: Object.assign({}, first.glyphClassDef, second.glyphClassDef),
+		ligCarets: Object.assign({}, first.ligCarets, second.ligCarets)
+	};
+};

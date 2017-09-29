@@ -1,5 +1,5 @@
 "use strict";
-const mergeOTLTables = require("./mergeOTL");
+const { mergeOTLTables, mergeGDEF } = require("./mergeOTL");
 
 // assume glyph names do not conflict -- simple when using name prefix
 async function CompositeBelow(ctx, target, majorName, sideName, config) {
@@ -38,6 +38,7 @@ async function CompositeBelow(ctx, target, majorName, sideName, config) {
 	if (config.mergeOTL) {
 		mergeOTLTables(major.GSUB, side.GSUB, false);
 		mergeOTLTables(major.GPOS, side.GPOS, false);
+		major.GDEF = mergeGDEF(side.GDEF || {}, major.GDEF || {});
 	}
 	// Change name
 	this.remove(sideName);

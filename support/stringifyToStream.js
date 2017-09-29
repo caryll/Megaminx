@@ -1,6 +1,7 @@
 "use strict";
 
 const BUFFER_LIMIT = 1e6;
+const NEST = 3;
 
 module.exports = function(obj, writer, dontend) {
 	let buffer = "";
@@ -12,7 +13,10 @@ module.exports = function(obj, writer, dontend) {
 		writer.write(buffer, "utf8");
 		buffer = "";
 	}
-	function traverse(obj, level) {
+	function traverseSync(obj, level) {
+		push(JSON.stringify(obj));
+	}
+	async function traverse(obj, level) {
 		switch (typeof obj) {
 			case "string":
 
@@ -30,7 +34,11 @@ module.exports = function(obj, writer, dontend) {
 					push("[");
 					for (let j = 0; j < obj.length; j++) {
 						if (needComma) push(",");
-						traverse(obj[j], level + 1);
+						if (level < NEST) {
+							await traverse(obj[j], level + 1);
+						} else {
+							traverseSync(obj[j], level + 1);
+						}
 						needComma = true;
 					}
 					push("]");
@@ -42,7 +50,11 @@ module.exports = function(obj, writer, dontend) {
 						if (needComma) push(",");
 						push(JSON.stringify(key));
 						push(":");
-						traverse(obj[key], level + 1);
+						if (level < NEST) {
+							await traverse(obj[key], level + 1);
+						} else {
+							traverseSync(obj[key], level + 1);
+						}
 						needComma = true;
 					}
 					push("}\n");
@@ -50,15 +62,17 @@ module.exports = function(obj, writer, dontend) {
 			}
 		}
 	}
-	return new Promise(function(resolve, reject) {
-		traverse(obj, 0);
-		if (buffer) flush();
-		if (dontend) {
-			resolve(null);
-		} else {
-			writer.end();
-			writer.on("close", () => resolve(null));
-			writer.on("error", why => reject(why));
-		}
-	});
+	return traverse(obj, 0).then(
+		() =>
+			new Promise((resolve, reject) => {
+				if (buffer) flush();
+				if (dontend) {
+					resolve(null);
+				} else {
+					writer.end();
+					writer.on("close", () => resolve(null));
+					writer.on("error", why => reject(why));
+				}
+			})
+	);
 };

@@ -73,6 +73,9 @@ module.exports = async function(ctx, target, options) {
 					}
 				}
 			}
+			if (options && options.mustKeep) {
+				mark(lut, options.mustKeep);
+			}
 			let lutn1 = Object.keys(lut).length;
 			if (lutn1 === lutn) break;
 		} while (true);

@@ -73,13 +73,15 @@ const PRI_GLYF = 2;
 function decideGlyphOrder(font, ignoreOld) {
 	const m = new Map();
 	// priority 0 : existing GlyphOrder
-	if (font.glyph_order && !ignoreOld) {
-		for (let j = 0; j < font.glyph_order.length; j++) {
+	if (font.glyph_order) {
+		const max = ignoreOld ? Math.min(1, font.glyph_order.length) : font.glyph_order.length;
+		for (let j = 0; j < max; j++) {
 			if (!font.glyph_order[j]) continue;
 			if (!font.glyf[font.glyph_order[j]]) continue;
 			assignOrder(m, font.glyph_order[j], PRI_GORD, j);
 		}
 	}
+
 	if (font.cmap) {
 		for (let u in font.cmap) {
 			if (!font.cmap[u]) continue;

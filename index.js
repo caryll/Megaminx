@@ -16,6 +16,7 @@ module.exports = {
 	adjust: require("./procs/adjust"),
 	alias: require("./procs/alias"),
 	build: require("./procs/build"),
+	mark: require("./procs/mark"),
 	gc: require("./procs/gc"),
 	introduce: require("./procs/introduce"),
 	quadify: require("./procs/quadify"),

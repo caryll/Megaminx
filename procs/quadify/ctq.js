@@ -2,54 +2,56 @@ const cubicToQuad = require("cubic2quad");
 const Z = require("../../geometry/glyph-point");
 
 function removeMids(contour, err) {
-	var last = contour.length - 1;
-	for (var j = 0; j < contour.length - 1; j++) {
-		if (
-			Math.abs(contour[j].x - contour[j + 1].x) < 1 &&
-			Math.abs(contour[j].y - contour[j + 1].y) < 1
-		) {
-			contour[j + 1].rem = true;
-			contour[j].on = true;
-		}
-	}
-	while (
-		last > 0 &&
-		Math.abs(contour[0].x - contour[last].x) < 1 &&
-		Math.abs(contour[0].y - contour[last].y) < 1
-	) {
-		contour[last].rem = true;
-		contour[0].on = true;
-		last -= 1;
-	}
-	contour = contour.filter(function(x) {
-		return !x.rem;
-	});
-
-	last = contour.length - 1;
-	for (var j = 1; j < contour.length - 1; j++) {
-		if (!contour[j - 1].on && contour[j].on && !contour[j + 1].on) {
-			var mx = contour[j - 1].x + contour[j + 1].x;
-			var my = contour[j - 1].y + contour[j + 1].y;
-			var dy = contour[j - 1].y - contour[j + 1].y;
+	for (let rounds = 0; rounds < 255; rounds++) {
+		const n0 = contour.length;
+		var last = contour.length - 1;
+		for (var j = 0; j < contour.length - 1; j++) {
 			if (
-				Math.abs(dy) >= 1 &&
-				Math.abs(contour[j].x * 2 - mx) < err &&
-				Math.abs(contour[j].y * 2 - my) < err
+				Math.abs(contour[j].x - contour[j + 1].x) < 1 &&
+				Math.abs(contour[j].y - contour[j + 1].y) < 1
 			) {
-				contour[j].rem = true;
+				contour[j + 1].rem = true;
+				contour[j].on = true;
 			}
 		}
-	}
-	if (!contour[last].rem && !contour[last].on && contour[0].on && !contour[1].on) {
-		mx = contour[last].x + contour[1].x;
-		my = contour[last].y + contour[1].y;
-		if (Math.abs(contour[0].x * 2 - mx) < err && Math.abs(contour[0].y * 2 - my) < err) {
-			contour[0].rem = true;
+		while (
+			last > 0 &&
+			Math.abs(contour[0].x - contour[last].x) < 1 &&
+			Math.abs(contour[0].y - contour[last].y) < 1
+		) {
+			contour[last].rem = true;
+			contour[0].on = true;
+			last -= 1;
 		}
+		contour = contour.filter(x => !x.rem);
+
+		last = contour.length - 1;
+		for (var j = 1; j < contour.length - 1; j++) {
+			if (!contour[j - 1].on && contour[j].on && !contour[j + 1].on) {
+				var mx = contour[j - 1].x + contour[j + 1].x;
+				var my = contour[j - 1].y + contour[j + 1].y;
+				var dy = contour[j - 1].y - contour[j + 1].y;
+				if (
+					Math.abs(dy) >= 1 &&
+					Math.abs(contour[j].x * 2 - mx) < err &&
+					Math.abs(contour[j].y * 2 - my) < err
+				) {
+					contour[j].rem = true;
+				}
+			}
+		}
+		if (!contour[last].rem && !contour[last].on && contour[0].on && !contour[1].on) {
+			mx = contour[last].x + contour[1].x;
+			my = contour[last].y + contour[1].y;
+			if (Math.abs(contour[0].x * 2 - mx) < err && Math.abs(contour[0].y * 2 - my) < err) {
+				contour[0].rem = true;
+			}
+		}
+		contour = contour.filter(x => !x.rem);
+		const n = contour.length;
+		if (n >= n0) break;
 	}
-	return contour.filter(function(x) {
-		return !x.rem;
-	});
+	return contour;
 }
 function xprior(a, b) {
 	return a.y < b.y || (a.y === b.y && ((a.on && !b.on) || (a.on === b.on && a.x < b.x)));
@@ -83,6 +85,16 @@ function quadSolve(a, b, c) {
 	}
 	var DSqrt = Math.sqrt(D);
 	return [(-b - DSqrt) / (2 * a), (-b + DSqrt) / (2 * a)];
+}
+
+function colinear(x1, y1, x2, y2, x3, y3, err) {
+	const det = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
+	return det <= err && det >= -err;
+}
+
+function inspan(a, b, c) {
+	if (a > c) return inspan(c, b, a);
+	return a <= b && b <= c;
 }
 
 function splitAt(x1, y1, x2, y2, x3, y3, x4, y4, t) {
@@ -140,6 +152,16 @@ function getSplitAtXY(x1, y1, x2, y2, x3, y3, x4, y4, splitAtX, splitAtY) {
 }
 
 function handle(z1, z2, z3, z4, splitAtX, splitAtY, err) {
+	if (
+		colinear(z1.x, z1.y, z2.x, z2.y, z4.x, z4.y, err) &&
+		colinear(z1.x, z1.y, z3.x, z3.y, z4.x, z4.y, err) &&
+		inspan(z1.x, z2.x, z4.x) &&
+		inspan(z1.y, z2.y, z4.y) &&
+		inspan(z1.x, z3.x, z4.x) &&
+		inspan(z1.y, z3.y, z4.y)
+	) {
+		return [];
+	}
 	const segs = getSplitAtXY(z1.x, z1.y, z2.x, z2.y, z3.x, z3.y, z4.x, z4.y, splitAtX, splitAtY);
 	const ss = [];
 	for (let s of segs) {

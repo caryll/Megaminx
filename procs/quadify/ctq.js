@@ -1,4 +1,4 @@
-const cubicToQuad = require("cubic2quad");
+const cubicToQuad = require("./ctqcore");
 const Z = require("../../geometry/glyph-point");
 
 function removeMids(contour, err) {

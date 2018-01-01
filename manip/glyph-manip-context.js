@@ -97,6 +97,9 @@ class GlyphSaver {
 	constructor(font) {
 		this.font = font;
 	}
+	_generateGlyphName() {
+		return "#saver#GID#" + Object.keys(this.font.glyf).length;
+	}
 	async to(gname, unicode, glyph) {
 		if (!gname) {
 			gname = "#saver#GID#" + Object.keys(this.font.glyf).length;
@@ -107,14 +110,23 @@ class GlyphSaver {
 		}
 		return gname;
 	}
+	_saveN(gname) {
+		if (typeof gname === "string") {
+			return gname;
+		} else {
+			const name = this._generateGlyphName();
+			this.font.glyf[name] = gname;
+			return name;
+		}
+	}
 	async encode(unicode, gname) {
-		this.font.cmap[unicodeOf(unicode)] = gname;
+		this.font.cmap[unicodeOf(unicode)] = this._saveN(gname);
 		return gname;
 	}
 	async variant(unicode, selector, gname) {
 		if (!this.font.cmap_uvs) this.font.cmap_uvs = {};
 		if (vsData[selector]) selector = vsData[selector];
-		this.font.cmap_uvs[unicodeOf(unicode) + " " + selector] = gname;
+		this.font.cmap_uvs[unicodeOf(unicode) + " " + selector] = this._saveN(gname);
 		return gname;
 	}
 }

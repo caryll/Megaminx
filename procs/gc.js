@@ -27,7 +27,6 @@ module.exports = async function(ctx, target, options) {
 				nk++;
 			}
 		}
-		process.stderr.write(`  Megaminx Glyph GC : ${na} -> ${nk}\n`);
 		font.glyf = g1;
 		if (nk >= na) break;
 	}

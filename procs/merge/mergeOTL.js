@@ -6,7 +6,6 @@ function mergeOTLTables(dst, src, priorizeSrc) {
 		dst.features[fid] = src.features[fid];
 	}
 	for (const lid in src.lookups) {
-		process.stderr.write(`    Merged lookup ${lid}\n`);
 		dst.lookups[lid] = src.lookups[lid];
 	}
 	for (const lid in src.languages) {

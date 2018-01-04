@@ -18,11 +18,14 @@ function cppm(cp) {
 	});
 }
 
-function sanityFeatures(table) {
+function sanitizeFeatures(table) {
 	if (!table) return;
 	const allfeats = {};
-	for (let lid in table.languages) {
+	const knownLanguages = Object.keys(table.languages).sort();
+	for (let lid of knownLanguages) {
 		const lang = table.languages[lid];
+		if (!lang) continue;
+
 		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
 			allfeats[lang.requiredFeature + "#RF#" + lid] = table.features[lang.requiredFeature];
 			lang.requiredFeature = lang.requiredFeature + "#RF#" + lid;
@@ -155,8 +158,8 @@ async function Build(ctx, demand, options) {
 			font.TSI_01.glyphs = createTSI1(font, gmap, font.TSI_01.glyphs || {});
 		}
 	}
-	sanityFeatures(font.GSUB);
-	sanityFeatures(font.GPOS);
+	sanitizeFeatures(font.GSUB);
+	sanitizeFeatures(font.GPOS);
 	if (destination === "|") {
 		if (process.stdout.setEncoding instanceof Function) process.stdout.setEncoding("utf8");
 		await stringifyToStream(font, process.stdout, true);

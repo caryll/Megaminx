@@ -53,7 +53,7 @@ function markSubtable(lut, type, st, options) {
 	}
 }
 
-module.exports = function(ctx, target, options) {
+function markFont(ctx, target, options) {
 	const font = this.items[target];
 
 	options = options || {};
@@ -87,4 +87,6 @@ module.exports = function(ctx, target, options) {
 		mark(lut, font.glyf[g].references);
 	}
 	return lut;
-};
+}
+
+module.exports = markFont;

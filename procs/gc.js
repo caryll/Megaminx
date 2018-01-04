@@ -5,8 +5,59 @@
 const mark = require("./mark");
 const { kvfilter } = require("../support/kvfns");
 
+// markFeature
+function filterFeature(table) {
+	if (!table) return;
+	const visibleFeatures = new Set();
+	const visibleLookups = new Set();
+	for (let lid in table.languages) {
+		const lang = table.languages[lid];
+		if (!lang) continue;
+		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
+			visibleFeatures.add(lang.requiredFeature);
+		}
+		if (!lang.features) lang.features = [];
+		for (let f of lang.features) {
+			if (!table.features[f]) continue;
+			visibleFeatures.add(f);
+		}
+	}
+	table.features = kvfilter(table.features, k => visibleFeatures.has(k));
+	for (let fid in table.features) {
+		if (!table.features[fid]) continue;
+		for (let lutid of table.features[fid]) {
+			if (!table.lookups[lutid]) continue;
+			visibleLookups.add(lutid);
+		}
+	}
+	do {
+		const nA = visibleLookups.size;
+		for (let lid in table.lookups) {
+			const lut = table.lookups[lid];
+			if (!lut || !visibleLookups.has(lid)) continue;
+			switch (lut.type) {
+				case "gsub_chaining":
+				case "gpos_chaining":
+					for (let rule of lut.subtables) {
+						for (let application of rule.apply) {
+							visibleLookups.add(application.lookup);
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		const nK = visibleLookups.size;
+		if (nK >= nA) break;
+	} while (true);
+	table.lookups = kvfilter(table.lookups, k => visibleLookups.has(k));
+}
+
 module.exports = async function(ctx, target, options) {
 	const font = this.items[target];
+	filterFeature(font.GSUB);
+	filterFeature(font.GPOS);
 	for (let passes = 0; passes < 16; passes++) {
 		let lut = mark.call(
 			this,

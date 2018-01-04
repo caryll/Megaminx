@@ -128,9 +128,9 @@ function createTSI1(font, gmap, tsi1) {
 			if (isStandardMatrix(r)) {
 				ans += `OFFSET[${r.roundToGrid ? "R" : "r"}],${gmap.get(r.glyph)},${r.x},${r.y}\n`;
 			} else {
-				ans += `SOFFSET[${r.roundToGrid ? "R" : "r"}],${gmap.get(
-					r.glyph
-				)},${r.x},${r.y},${r.a},${r.b},${r.c},${r.d}\n`;
+				ans += `SOFFSET[${r.roundToGrid ? "R" : "r"}],${gmap.get(r.glyph)},${r.x},${r.y},${
+					r.a
+				},${r.b},${r.c},${r.d}\n`;
 			}
 		}
 		ans += tsi1str;
@@ -147,12 +147,10 @@ async function Build(ctx, demand, options) {
 		font.cvt_ = null;
 		font.prep = null;
 		font.fpgm = null;
-		if (options.ignoreOrder) {
-			font.TSI_01.glyphs = {};
-		} else {
+		{
 			// There may be VTT Talks in TSI1 for composite glyphs.
 			// In this case we must generate a glyph order for it.
-			const [gord, gmap] = decideGlyphOrder(font, options.optimize);
+			const [gord, gmap] = decideGlyphOrder(font, options.ignoreOrder);
 			font.glyph_order = gord;
 			font.TSI_01.glyphs = createTSI1(font, gmap, font.TSI_01.glyphs || {});
 		}
@@ -167,9 +165,9 @@ async function Build(ctx, demand, options) {
 		if (ext === ".ttf" || ext === ".otf") {
 			const cp = child_process.spawn(which.sync("otfccbuild"), [
 				...["-o", destination],
-				...(options.optimize ? ["-O3"] : []),
+				...(options.optimize ? ["--short-post", "--subroutinize", "--force-cid"] : []),
 				...(options.sign ? ["-s"] : []),
-				...(options.ignoreOrder ? [] : ["-k"]),
+				...(options.ignoreOrder ? ["-i"] : ["-k"]),
 				...(options.recalculateCharWidth ? [] : ["--keep-average-char-width"])
 			]);
 			cp.stderr.on("data", function(data) {

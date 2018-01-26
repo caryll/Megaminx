@@ -60,7 +60,7 @@ class Kit {
 	// saving functions
 	async saveMap(mapgns, gn, u) {
 		if (this.broken) return null;
-		let gn1 = await this.ctx.save.to(gn, u, this.glyph);
+		let gn1 = await this.ctx.save.to(gn, u, this.glyph.clone());
 		if (this.addMap) this.addMap(mapgns, gn1);
 		return gn1;
 	}

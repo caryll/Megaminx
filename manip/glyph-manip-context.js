@@ -119,15 +119,17 @@ class GlyphSaver {
 			return name;
 		}
 	}
-	async encode(unicode, gname) {
-		this.font.cmap[unicodeOf(unicode)] = this._saveN(gname);
-		return gname;
+	async encode(unicode, item) {
+		const name = this._saveN(item);
+		this.font.cmap[unicodeOf(unicode)] = name;
+		return name;
 	}
-	async variant(unicode, selector, gname) {
+	async variant(unicode, selector, item) {
 		if (!this.font.cmap_uvs) this.font.cmap_uvs = {};
 		if (vsData[selector]) selector = vsData[selector];
-		this.font.cmap_uvs[unicodeOf(unicode) + " " + selector] = this._saveN(gname);
-		return gname;
+		const name = this._saveN(item);
+		this.font.cmap_uvs[unicodeOf(unicode) + " " + selector] = name;
+		return name;
 	}
 }
 
@@ -141,6 +143,7 @@ class DrawingContext {
 		this.GPOS = font.GPOS;
 		this.coZ = {
 			rz: (u, v) => g => g.rz(u, v),
+			vrz: (u, v) => g => g.vrz(u, v),
 			GlyphCenter: Glyph.prototype.center
 		};
 	}

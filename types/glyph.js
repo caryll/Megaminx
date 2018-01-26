@@ -38,6 +38,9 @@ class Glyph {
 	rz(rx, ry) {
 		return new Point(this.advanceWidth * rx, this.em * ry);
 	}
+	vrz(rx, ry) {
+		return new Point(this.advanceWidth * rx, this.verticalOrigin - this.advanceHeight * ry);
+	}
 	cbox() {
 		let xmin = 0xffff,
 			xmax = -0xffff,

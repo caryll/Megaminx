@@ -1,44 +1,78 @@
 "use strict";
 
-function Saving(vm, ctx, oldGNs, g) {
-	return {
-		glyph: g,
-		saveMap: async function(mapgns, gn, u) {
-			let gn1 = await ctx.save.to(gn, u, g);
-			if (vm.addMap) vm.addMap(mapgns, gn1);
-			return gn1;
-		},
-		saveInsitu: async function() {
-			return this.saveMap(oldGNs, oldGNs[0], null);
-		},
-		save: async function(...args) {
-			return this.saveMap(oldGNs, ...args);
-		},
-		saveU: async function(u) {
-			return await this.save(null, u);
+class Kit {
+	constructor(ctx) {
+		this.ctx = ctx;
+		this.focusedGlyphs = null;
+		this.focusedGlyphNames = null;
+		this.broken = false;
+		this.glyph = null;
+	}
+
+	for(...gns) {
+		return this.for_(gns);
+	}
+
+	for_(glyphNames) {
+		let o = Object.create(this);
+		let glyphs = [];
+		let broken = false;
+		for (let gn of glyphNames) {
+			let g = typeof gn === "string" ? this.ctx.find.glyph$(gn) : gn;
+			if (!g) {
+				broken = true;
+			}
+			glyphs.push(g);
 		}
-	};
-}
-function EmptySaving() {
-	return {
-		saveMap: async function() {},
-		save: async function() {},
-		saveU: async function() {},
-		saveInsitu: async function() {}
-	};
+		o.focusedGlyphs = glyphs;
+		o.focusedGlyphNames = glyphNames;
+		o.broken = broken;
+		return o;
+	}
+
+	run(manipulator, standardArity, argsPrefix, args) {
+		if (this.broken) return this;
+		if (this.focusedGlyphs) {
+			const g = manipulator.apply(this.ctx, [
+				...this.focusedGlyphs,
+				...(argsPrefix || []),
+				...args
+			]);
+			this.focusedGlyphs = [g];
+			this.glyph = g;
+			return this;
+		} else {
+			return this.for_(args.slice(0, standardArity)).run(
+				manipulator,
+				standardArity,
+				argsPrefix,
+				args.slice(standardArity)
+			);
+		}
+	}
+
+	// piping to another kit
+	pipe(kit) {
+		if (this.broken) return this;
+		return kit.for_(this.focusedGlyphs);
+	}
+
+	// saving functions
+	async saveMap(mapgns, gn, u) {
+		if (this.broken) return null;
+		let gn1 = await this.ctx.save.to(gn, u, this.glyph);
+		if (this.addMap) this.addMap(mapgns, gn1);
+		return gn1;
+	}
+	async saveInsitu() {
+		return this.saveMap(this.focusedGlyphNames, this.focusedGlyphNames[0], null);
+	}
+	async save(...args) {
+		return this.saveMap(this.focusedGlyphNames, ...args);
+	}
+	async saveU(u) {
+		return await this.save(null, u);
+	}
 }
 
-exports.run = function(kit, proc, arity, ..._args) {
-	const glyphNames = _args.slice(0, arity);
-	const procArgs = _args.slice(arity);
-	const glyphs = [];
-	for (let gn of glyphNames) {
-		let g = kit.ctx.find.glyph$(gn);
-		if (!g) {
-			return EmptySaving();
-		}
-		glyphs.push(g);
-	}
-	const g1 = proc.apply(kit.ctx, [...glyphs, ...procArgs]);
-	return Saving(kit, kit.ctx, glyphNames, g1);
-};
+exports.Kit = Kit;

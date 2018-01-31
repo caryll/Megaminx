@@ -20,14 +20,24 @@ class GlyphNameFinder {
 	constructor(font) {
 		this.font = font;
 	}
-	unicode(_u) {
+	unicode(_u, v) {
 		let u = unicodeOf(_u);
-		if (this.font.cmap[u] && this.font.glyf[this.font.cmap[u]]) {
-			return this.font.cmap[u];
+		if (v) {
+			if (
+				this.font.cmap_uvs &&
+				this.font.cmap_uvs[u + " " + v] &&
+				this.font.glyf[this.font.cmap_uvs[u + " " + v]]
+			) {
+				return this.font.cmap_uvs[u + " " + v];
+			}
+		} else {
+			if (this.font.cmap[u] && this.font.glyf[this.font.cmap[u]]) {
+				return this.font.cmap[u];
+			}
 		}
 	}
-	u(u) {
-		return this.unicode(u);
+	u(u, v) {
+		return this.unicode(u, v);
 	}
 	subst(feature, gn) {
 		const font = this.font;
@@ -62,19 +72,19 @@ class GlyphFinder {
 	glyph$(gname) {
 		return Glyph.fromCopy(this.font, this.glyph(gname), gname);
 	}
-	unicode(u) {
-		const gn = this.gname.unicode(u);
+	unicode(u, v) {
+		const gn = this.gname.unicode(u, v);
 		if (gn) return this.glyph(gn);
 	}
-	unicode$(u) {
-		const gn = this.gname.unicode(u);
+	unicode$(u, v) {
+		const gn = this.gname.unicode(u, v);
 		if (gn) return this.glyph$(gn);
 	}
-	u(u) {
-		return this.unicode(u);
+	u(u, v) {
+		return this.unicode(u, v);
 	}
-	u$(u) {
-		return this.unicode$(u);
+	u$(u, v) {
+		return this.unicode$(u, v);
 	}
 }
 

@@ -42,7 +42,7 @@ function sanitizeFeatures(table) {
 		lang.features = [];
 		for (let tag in tagmap) {
 			const fn = tag + "#FEAT#" + lid;
-			allfeats[fn] = tagmap[tag];
+			allfeats[fn] = [...new Set(tagmap[tag])];
 			lang.features.push(fn);
 		}
 		table.languages[lid] = lang;

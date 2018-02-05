@@ -1,6 +1,6 @@
 {
 	"name": "megaminx",
-	"version": "0.7.2",
+	"version": "0.8.0",
 	"description": "A typeface manipulation toolkit",
 	"engines": {
 		"node": ">=8.4.0"

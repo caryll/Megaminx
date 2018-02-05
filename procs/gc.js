@@ -6,13 +6,17 @@ const mark = require("./mark");
 const { kvfilter } = require("../support/kvfns");
 
 // markFeature
-function filterFeature(table) {
+function filterFeature(table, options) {
 	if (!table) return;
+	options = options || {};
+	const visibleLanguages = new Set();
 	const visibleFeatures = new Set();
 	const visibleLookups = new Set();
 	for (let lid in table.languages) {
 		const lang = table.languages[lid];
 		if (!lang) continue;
+		if (options.isValidLang && !options.isValidLang(lid, lang)) continue;
+		visibleLanguages.add(lid);
 		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
 			visibleFeatures.add(lang.requiredFeature);
 		}
@@ -22,9 +26,11 @@ function filterFeature(table) {
 			visibleFeatures.add(f);
 		}
 	}
+	table.languages = kvfilter(table.languages, k => visibleLanguages.has(k));
 	table.features = kvfilter(table.features, k => visibleFeatures.has(k));
 	for (let fid in table.features) {
 		if (!table.features[fid]) continue;
+		if (options.isValidFeature && !options.isValidFeature(fid, table.features[fid])) continue;
 		for (let lutid of table.features[fid]) {
 			if (!table.lookups[lutid]) continue;
 			visibleLookups.add(lutid);
@@ -56,8 +62,8 @@ function filterFeature(table) {
 
 module.exports = async function(ctx, target, options) {
 	const font = this.items[target];
-	filterFeature(font.GSUB);
-	filterFeature(font.GPOS);
+	filterFeature(font.GSUB, options);
+	filterFeature(font.GPOS, options);
 	for (let passes = 0; passes < 16; passes++) {
 		let lut = mark.call(
 			this,

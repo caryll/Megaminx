@@ -1,5 +1,6 @@
 "use strict";
 
+const clone = require("clone");
 const child_process = require("child_process");
 const stringifyToStream = require("../support/stringifyToStream");
 const which = require("which");
@@ -23,8 +24,8 @@ function sanitizeFeatures(table) {
 	const allfeats = {};
 	const knownLanguages = Object.keys(table.languages).sort();
 	for (let lid of knownLanguages) {
-		const lang = table.languages[lid];
-		if (!lang) continue;
+		if (!table.languages[lid]) continue;
+		const lang = clone(table.languages[lid]);
 
 		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
 			allfeats[lang.requiredFeature + "#RF#" + lid] = table.features[lang.requiredFeature];
@@ -44,6 +45,7 @@ function sanitizeFeatures(table) {
 			allfeats[fn] = tagmap[tag];
 			lang.features.push(fn);
 		}
+		table.languages[lid] = lang;
 	}
 	table.features = allfeats;
 }

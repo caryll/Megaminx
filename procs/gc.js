@@ -18,11 +18,22 @@ function filterFeature(table, options) {
 		if (options.isValidLang && !options.isValidLang(lid, lang)) continue;
 		visibleLanguages.add(lid);
 		if (lang.requiredFeature && table.features[lang.requiredFeature]) {
-			visibleFeatures.add(lang.requiredFeature);
+			if (
+				!(
+					options.isValidFeature &&
+					!options.isValidFeature(
+						lang.requiredFeature,
+						table.features[lang.requiredFeature]
+					)
+				)
+			) {
+				visibleFeatures.add(lang.requiredFeature);
+			}
 		}
 		if (!lang.features) lang.features = [];
 		for (let f of lang.features) {
 			if (!table.features[f]) continue;
+			if (options.isValidFeature && !options.isValidFeature(f, table.features[f])) continue;
 			visibleFeatures.add(f);
 		}
 	}
@@ -30,7 +41,6 @@ function filterFeature(table, options) {
 	table.features = kvfilter(table.features, k => visibleFeatures.has(k));
 	for (let fid in table.features) {
 		if (!table.features[fid]) continue;
-		if (options.isValidFeature && !options.isValidFeature(fid, table.features[fid])) continue;
 		for (let lutid of table.features[fid]) {
 			if (!table.lookups[lutid]) continue;
 			visibleLookups.add(lutid);

@@ -178,8 +178,7 @@ async function Build(ctx, demand, options) {
 			cp.stderr.on("data", function(data) {
 				if (options.verbose) process.stderr.write(data);
 			});
-			stringifyToStream(font, cp.stdin);
-			await cppm(cp);
+			await Promise.all([stringifyToStream(font, cp.stdin), cppm(cp)]);
 		} else {
 			const out = fs.createWriteStream(destination);
 			await stringifyToStream(font, out);

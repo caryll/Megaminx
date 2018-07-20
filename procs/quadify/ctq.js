@@ -1,11 +1,13 @@
-const cubicToQuad = require("./ctqcore");
+"use strict";
+
+const primitiveCubicToQuad = require("primitive-quadify-off-curves");
 const Z = require("../../geometry/glyph-point");
 
 function removeMids(contour, err) {
 	for (let rounds = 0; rounds < 255; rounds++) {
 		const n0 = contour.length;
-		var last = contour.length - 1;
-		for (var j = 0; j < contour.length - 1; j++) {
+		let last = contour.length - 1;
+		for (let j = 0; j < contour.length - 1; j++) {
 			if (
 				Math.abs(contour[j].x - contour[j + 1].x) < 1 &&
 				Math.abs(contour[j].y - contour[j + 1].y) < 1
@@ -26,11 +28,11 @@ function removeMids(contour, err) {
 		contour = contour.filter(x => !x.rem);
 
 		last = contour.length - 1;
-		for (var j = 1; j < contour.length - 1; j++) {
+		for (let j = 1; j < contour.length - 1; j++) {
 			if (!contour[j - 1].on && contour[j].on && !contour[j + 1].on) {
-				var mx = contour[j - 1].x + contour[j + 1].x;
-				var my = contour[j - 1].y + contour[j + 1].y;
-				var dy = contour[j - 1].y - contour[j + 1].y;
+				const mx = contour[j - 1].x + contour[j + 1].x;
+				const my = contour[j - 1].y + contour[j + 1].y;
+				const dy = contour[j - 1].y - contour[j + 1].y;
 				if (
 					Math.abs(dy) >= 1 &&
 					Math.abs(contour[j].x * 2 - mx) < err &&
@@ -41,8 +43,8 @@ function removeMids(contour, err) {
 			}
 		}
 		if (!contour[last].rem && !contour[last].on && contour[0].on && !contour[1].on) {
-			mx = contour[last].x + contour[1].x;
-			my = contour[last].y + contour[1].y;
+			const mx = contour[last].x + contour[1].x;
+			const my = contour[last].y + contour[1].y;
 			if (Math.abs(contour[0].x * 2 - mx) < err && Math.abs(contour[0].y * 2 - my) < err) {
 				contour[0].rem = true;
 			}
@@ -162,12 +164,21 @@ function handle(z1, z2, z3, z4, splitAtX, splitAtY, err) {
 	) {
 		return [];
 	}
+
 	const segs = getSplitAtXY(z1.x, z1.y, z2.x, z2.y, z3.x, z3.y, z4.x, z4.y, splitAtX, splitAtY);
 	const ss = [];
-	for (let s of segs) {
-		let a = cubicToQuad(...s, err);
-		for (let j = ss.length ? 2 : 0; j < a.length; j++) {
-			ss.push(a[j]);
+	for (let j = 0; j < segs.length; j++) {
+		const s = segs[j];
+		const offKnots = primitiveCubicToQuad.autoQuadify(
+			{ x: s[0], y: s[1] },
+			{ x: s[2], y: s[3] },
+			{ x: s[4], y: s[5] },
+			{ x: s[6], y: s[7] },
+			err
+		);
+		if (j) ss.push(new Z(s[0], s[1], true));
+		for (const z of offKnots) {
+			ss.push(new Z(z.x, z.y, false));
 		}
 	}
 	return ss;
@@ -176,29 +187,19 @@ function handle(z1, z2, z3, z4, splitAtX, splitAtY, err) {
 function toquad(contour, splitAtX, splitAtY, err) {
 	if (contour.length === 0) return [];
 	if (contour.length === 1) return [contour[0]];
-	var newcontour = [];
+	let newcontour = [];
 	contour.push(new Z(contour[0].x, contour[0].y, true));
-	for (var j = 0; j < contour.length; j++) {
+	for (let j = 0; j < contour.length; j++) {
 		if (contour[j].on) {
 			newcontour.push(Z.from(contour[j]));
 		} else {
-			var z1 = newcontour[newcontour.length - 1];
-			var z2 = contour[j];
-			var z3 = contour[j + 1];
-			var z4 = contour[j + 2];
-			var quadzs = handle(z1, z2, z3, z4, splitAtX, splitAtY, err);
-			var on = false;
-
-			var mx = (z1.x + z4.x) / 2;
-			var my = (z1.y + z4.y) / 2;
-			var bw = Math.abs(z4.x - z1.x);
-			var bh = Math.abs(z4.y - z1.y);
-			for (var k = 2; k < quadzs.length - 2; k += 2) {
-				var cx = quadzs[k];
-				var cy = quadzs[k + 1];
-				newcontour.push(new Z(cx, cy, on));
-				on = !on;
-			}
+			const z1 = newcontour[newcontour.length - 1];
+			const z2 = contour[j];
+			const z3 = contour[j + 1];
+			const z4 = contour[j + 2];
+			const quadzs = handle(z1, z2, z3, z4, splitAtX, splitAtY, err);
+			if (!quadzs) console.log(z1, z2, z3, z4);
+			for (const z of quadzs) newcontour.push(z);
 			newcontour.push(new Z(z4.x, z4.y, true));
 			j += 2;
 		}
@@ -216,7 +217,9 @@ function byFirstPointCoord(a, b) {
 	let z2 = b[0];
 	return z1.y !== z2.y
 		? z1.y - z2.y
-		: z1.x !== z2.x ? z1.x - z2.x : byFirstPointCoord(a.slice(1), b.slice(1));
+		: z1.x !== z2.x
+			? z1.x - z2.x
+			: byFirstPointCoord(a.slice(1), b.slice(1));
 }
 
 function c2qContours(contours, splitAtX, splitAtY, err) {

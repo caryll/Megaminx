@@ -74,21 +74,6 @@ function canonicalStart(_points) {
 	return points.slice(jm).concat(points.slice(0, jm));
 }
 
-function quadSolve(a, b, c) {
-	// a*x^2 + b*x + c = 0
-	if (a === 0) {
-		return b === 0 ? [] : [-c / b];
-	}
-	var D = b * b - 4 * a * c;
-	if (D < 0) {
-		return [];
-	} else if (D === 0) {
-		return [-b / (2 * a)];
-	}
-	var DSqrt = Math.sqrt(D);
-	return [(-b - DSqrt) / (2 * a), (-b + DSqrt) / (2 * a)];
-}
-
 function colinear(x1, y1, x2, y2, x3, y3, err) {
 	const det = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
 	return det <= err && det >= -err;
@@ -99,61 +84,7 @@ function inspan(a, b, c) {
 	return a <= b && b <= c;
 }
 
-function splitAt(x1, y1, x2, y2, x3, y3, x4, y4, t) {
-	var u = 1 - t,
-		v = t;
-
-	var bx = x1 * u + x2 * v;
-	var sx = x2 * u + x3 * v;
-	var fx = x3 * u + x4 * v;
-	var cx = bx * u + sx * v;
-	var ex = sx * u + fx * v;
-	var dx = cx * u + ex * v;
-
-	var by = y1 * u + y2 * v;
-	var sy = y2 * u + y3 * v;
-	var fy = y3 * u + y4 * v;
-	var cy = by * u + sy * v;
-	var ey = sy * u + fy * v;
-	var dy = cy * u + ey * v;
-
-	return [[x1, y1, bx, by, cx, cy, dx, dy], [dx, dy, ex, ey, fx, fy, x4, y4]];
-}
-function splitAtTs(x1, y1, x2, y2, x3, y3, x4, y4, ts) {
-	if (!ts.length) return [[x1, y1, x2, y2, x3, y3, x4, y4]];
-	let s = splitAt(x1, y1, x2, y2, x3, y3, x4, y4, ts[0]);
-	if (ts.length === 1) {
-		return s;
-	} else {
-		return [s[0]].concat(splitAtTs(...s[1], ts.slice(1)));
-	}
-}
-
-function fin(t) {
-	return t > 0.001 && t < 0.999;
-}
-function substraction(x, y) {
-	return x - y;
-}
-
-function getSplitAtXY(x1, y1, x2, y2, x3, y3, x4, y4, splitAtX, splitAtY) {
-	const ax = 3 * (-x1 + 3 * x2 - 3 * x3 + x4);
-	const bx = 6 * (x1 - 2 * x2 + x3);
-	const cx = 3 * (x2 - x1);
-	const ay = 3 * (-y1 + 3 * y2 - 3 * y3 + y4);
-	const by = 6 * (y1 - 2 * y2 + y3);
-	const cy = 3 * (y2 - y1);
-	let ts = [];
-	if (splitAtX) {
-		ts = ts.concat(quadSolve(ax, bx, cx));
-	}
-	if (splitAtY) {
-		ts = ts.concat(quadSolve(ay, by, cy));
-	}
-	return splitAtTs(x1, y1, x2, y2, x3, y3, x4, y4, ts.filter(fin).sort(substraction));
-}
-
-function handle(z1, z2, z3, z4, splitAtX, splitAtY, err) {
+function handle(z1, z2, z3, z4, err) {
 	if (
 		colinear(z1.x, z1.y, z2.x, z2.y, z4.x, z4.y, err) &&
 		colinear(z1.x, z1.y, z3.x, z3.y, z4.x, z4.y, err) &&
@@ -165,26 +96,16 @@ function handle(z1, z2, z3, z4, splitAtX, splitAtY, err) {
 		return [];
 	}
 
-	const segs = getSplitAtXY(z1.x, z1.y, z2.x, z2.y, z3.x, z3.y, z4.x, z4.y, splitAtX, splitAtY);
-	const ss = [];
-	for (let j = 0; j < segs.length; j++) {
-		const s = segs[j];
-		const offKnots = primitiveCubicToQuad.autoQuadify(
-			{ x: s[0], y: s[1] },
-			{ x: s[2], y: s[3] },
-			{ x: s[4], y: s[5] },
-			{ x: s[6], y: s[7] },
-			err
-		);
-		if (j) ss.push(new Z(s[0], s[1], true));
-		for (const z of offKnots) {
-			ss.push(new Z(z.x, z.y, false));
-		}
+	const curve = new primitiveCubicToQuad.CubicBezierCurve(z1, z2, z3, z4);
+	const offPoints = primitiveCubicToQuad.autoQuadify(curve, err);
+	const ans = [];
+	for (const z of offPoints) {
+		ans.push(new Z(z.x, z.y, false));
 	}
-	return ss;
+	return ans;
 }
 
-function toquad(contour, splitAtX, splitAtY, err) {
+function toquad(contour, err) {
 	if (contour.length === 0) return [];
 	if (contour.length === 1) return [contour[0]];
 	let newcontour = [];
@@ -197,7 +118,7 @@ function toquad(contour, splitAtX, splitAtY, err) {
 			const z2 = contour[j];
 			const z3 = contour[j + 1];
 			const z4 = contour[j + 2];
-			const quadzs = handle(z1, z2, z3, z4, splitAtX, splitAtY, err);
+			const quadzs = handle(z1, z2, z3, z4, err);
 			if (!quadzs) console.log(z1, z2, z3, z4);
 			for (const z of quadzs) newcontour.push(z);
 			newcontour.push(new Z(z4.x, z4.y, true));
@@ -222,21 +143,21 @@ function byFirstPointCoord(a, b) {
 			: byFirstPointCoord(a.slice(1), b.slice(1));
 }
 
-function c2qContours(contours, splitAtX, splitAtY, err) {
+function c2qContours(contours, err) {
 	let ans = [];
 	for (let c of contours) {
-		const c1 = toquad(c, splitAtX, splitAtY, err || 1);
+		const c1 = toquad(c, err || 1);
 		if (haspt(c1)) ans.push(c1);
 	}
 	return ans.sort(byFirstPointCoord);
 }
 
-module.exports = function(font, splitAtX, splitAtY, err) {
+module.exports = function(font, err) {
 	font.CFF_ = null;
 	for (var k in font.glyf) {
 		var g = font.glyf[k];
 		if (g.contours) {
-			g.contours = c2qContours(g.contours, splitAtX, splitAtY, err);
+			g.contours = c2qContours(g.contours, err);
 		}
 		g.stemH = null;
 		g.stemV = null;

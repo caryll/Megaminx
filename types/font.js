@@ -1,7 +1,8 @@
 "use strict";
 
 const Glyph = require("./glyph");
-const Z = require("../geometry/glyph-point");
+const typoGeom = require("typo-geom");
+const Z = typoGeom.OnOffGlyphPoint;
 
 class Font {
 	constructor(data) {

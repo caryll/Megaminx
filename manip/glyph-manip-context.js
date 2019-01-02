@@ -1,9 +1,6 @@
 "use strict";
 
-const clone = require("clone");
-const Point = require("../geometry/point");
-const Transform = require("../geometry/transform");
-const { mix } = require("../support/calc");
+const Point = require("typo-geom").Point;
 const Glyph = require("../types/glyph");
 
 function unicodeOf(_u) {

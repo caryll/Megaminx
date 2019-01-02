@@ -1,7 +1,7 @@
 "use strict";
 
 const clone = require("clone");
-const Point = require("../geometry/point");
+const Point = require("typo-geom").Point;
 const Transform = require("../geometry/transform");
 const { mix } = require("../support/calc");
 

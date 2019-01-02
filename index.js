@@ -1,11 +1,13 @@
 "use strict";
 
+const TypoGeom = require("typo-geom");
+
 module.exports = {
 	// Support
 	Workflow: require("./workflow"),
 	geometry: {
-		Point: require("./geometry/point"),
-		GlyphPoint: require("./geometry/glyph-point"),
+		Point: TypoGeom.Point,
+		GlyphPoint: TypoGeom.OnOffGlyphPoint,
 		Transform: require("./geometry/transform"),
 		c2q: require("./procs/quadify/ctq")
 	},

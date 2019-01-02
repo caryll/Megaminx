@@ -1,6 +1,5 @@
 "use strict";
 
-const Point = require("./point");
 const clone = require("clone");
 
 class Transform {

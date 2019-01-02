@@ -1,7 +1,7 @@
 "use strict";
 
-const primitiveCubicToQuad = require("primitive-quadify-off-curves");
-const Z = require("../../geometry/glyph-point");
+const typoGeom = require("typo-geom");
+const Z = typoGeom.OnOffGlyphPoint;
 
 function removeMids(contour, err) {
 	for (let rounds = 0; rounds < 255; rounds++) {
@@ -96,8 +96,8 @@ function handle(z1, z2, z3, z4, err) {
 		return [];
 	}
 
-	const curve = new primitiveCubicToQuad.CubicBezierCurve(z1, z2, z3, z4);
-	const offPoints = primitiveCubicToQuad.autoQuadify(curve, err);
+	const curve = new typoGeom.Curve.Bez3(z1, z2, z3, z4);
+	const offPoints = typoGeom.Quadify.auto(curve, err);
 	const ans = [];
 	for (const z of offPoints) {
 		ans.push(new Z(z.x, z.y, false));
@@ -112,7 +112,7 @@ function toquad(contour, err) {
 	contour.push(new Z(contour[0].x, contour[0].y, true));
 	for (let j = 0; j < contour.length; j++) {
 		if (contour[j].on) {
-			newcontour.push(Z.from(contour[j]));
+			newcontour.push(Z.from(contour[j], !!contour[j].on));
 		} else {
 			const z1 = newcontour[newcontour.length - 1];
 			const z2 = contour[j];
@@ -139,8 +139,8 @@ function byFirstPointCoord(a, b) {
 	return z1.y !== z2.y
 		? z1.y - z2.y
 		: z1.x !== z2.x
-			? z1.x - z2.x
-			: byFirstPointCoord(a.slice(1), b.slice(1));
+		? z1.x - z2.x
+		: byFirstPointCoord(a.slice(1), b.slice(1));
 }
 
 function c2qContours(contours, err) {
